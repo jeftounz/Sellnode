@@ -1,7 +1,10 @@
-const express = require('express');
-const router = express.Router();
-const authenticateToken = require('../middleware/auth.middleware');
+const router = require('express').Router();
+const houseController = require('../controllers/house.controller');
+const auth = require('../middleware/auth.middleware');
 
-router.get('/', authenticateToken, (req, res) => res.send('Lista de inmuebles'));
+router.post('/', auth, houseController.createHouse);
+router.get('/', auth, houseController.getAllHouses);
+router.put('/:id', auth, houseController.updateHouse);
+router.delete('/:id', auth, houseController.deleteHouse);
 
 module.exports = router;

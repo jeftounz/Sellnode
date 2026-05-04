@@ -1,8 +1,9 @@
-const express = require('express');
-const router = express.Router();
-const authenticateToken = require('../middleware/auth.middleware');
+const router = require('express').Router();
+const userController = require('../controllers/user.controller');
+const auth = require('../middleware/auth.middleware');
 
-// Ejemplo de ruta protegida (OWASP: Control de acceso)
-router.get('/', authenticateToken, (req, res) => res.send('Lista de usuarios'));
+router.get('/', auth, userController.getAllUsers);
+router.put('/:id', auth, userController.updateUser);
+router.delete('/:id', auth, userController.deleteUser);
 
 module.exports = router;
