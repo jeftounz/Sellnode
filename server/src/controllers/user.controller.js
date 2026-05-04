@@ -4,7 +4,8 @@ const { User } = require('../models');
 exports.getAllUsers = async (req, res) => {
     try {
         const users = await User.findAll({
-            attributes: { exclude: ['password'] } // OWASP: Nunca enviar el hash al cliente
+            // OWASP: Nunca enviar el hash de la contraseña ni datos sensibles innecesarios
+            attributes: { exclude: ['password'] } 
         });
         res.json(users);
     } catch (error) {
@@ -18,11 +19,22 @@ exports.updateUser = async (req, res) => {
         const { id } = req.params;
         const { name, email, isActive } = req.body;
 
+        // OWASP A01:2021: Control de Acceso basado en el propietario
+        // Evita que el usuario A modifique al usuario B
+        if (req.user.id !== id) {
+            return res.status(403).json({ message: 'No tienes permiso para modificar este perfil' });
+        }
+
         const user = await User.findByPk(id);
         if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
 
         await user.update({ name, email, isActive });
-        res.json({ message: 'Usuario actualizado', user });
+        
+        // Devolvemos el objeto actualizado sin el password
+        const updatedUser = user.toJSON();
+        delete updatedUser.password;
+
+        res.json({ message: 'Usuario actualizado', user: updatedUser });
     } catch (error) {
         res.status(500).json({ message: 'Error al actualizar usuario' });
     }
@@ -32,8 +44,13 @@ exports.updateUser = async (req, res) => {
 exports.deleteUser = async (req, res) => {
     try {
         const { id } = req.params;
+
+        // OWASP A01:2021: Control de Acceso
+        if (req.user.id !== id) {
+            return res.status(403).json({ message: 'No tienes permiso para eliminar este usuario' });
+        }
+
         const user = await User.findByPk(id);
-        
         if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
 
         await user.destroy();

@@ -141,3 +141,12 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# .gitignore central
+node_modules/
+.env
+client/node_modules/
+server/node_modules/
+dist/
+build/
+.DS_Store

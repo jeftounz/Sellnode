@@ -6,5 +6,6 @@ router.post('/', auth, houseController.createHouse);
 router.get('/', auth, houseController.getAllHouses);
 router.put('/:id', auth, houseController.updateHouse);
 router.delete('/:id', auth, houseController.deleteHouse);
+router.get('/:id', auth, houseController.getHouseById);
 
 module.exports = router;

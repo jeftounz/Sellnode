@@ -37,6 +37,11 @@ exports.updateHouse = async (req, res) => {
 
         if (!house) return res.status(404).json({ message: 'Inmueble no encontrado' });
 
+        // SEGURIDAD: Verificar que el usuario sea el dueño
+        if (house.sellerId !== req.user.id) {
+            return res.status(403).json({ message: 'No tienes permiso para editar este inmueble' });
+        }
+
         await house.update(req.body);
         res.json({ message: 'Inmueble actualizado', house });
     } catch (error) {
@@ -52,9 +57,30 @@ exports.deleteHouse = async (req, res) => {
         
         if (!house) return res.status(404).json({ message: 'Inmueble no encontrado' });
 
+        // SEGURIDAD: Verificar pertenencia
+        if (house.sellerId !== req.user.id) {
+            return res.status(403).json({ message: 'No tienes permiso para eliminar este inmueble' });
+        }
+
         await house.destroy();
         res.json({ message: 'Registro de venta eliminado' });
     } catch (error) {
         res.status(500).json({ message: 'Error al eliminar' });
+    }
+};
+
+// Obtener detalles de UNA venta (GET /houses/:id)
+exports.getHouseById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const house = await House.findByPk(id, {
+            include: [{ model: User, as: 'seller', attributes: ['name', 'email'] }]
+        });
+
+        if (!house) return res.status(404).json({ message: 'Inmueble no encontrado' });
+
+        res.json(house);
+    } catch (error) {
+        res.status(500).json({ message: 'Error al obtener el detalle del inmueble' });
     }
 };
