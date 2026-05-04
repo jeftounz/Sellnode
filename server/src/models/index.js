@@ -8,9 +8,9 @@ const sequelize = new Sequelize(
     {
         host: process.env.DB_HOST,
         dialect: 'postgres',
-        logging: false, // Evita llenar la consola de logs de SQL en desarrollo
+        logging: false, 
         define: {
-            timestamps: true, // OWASP: Importante para auditoría de creación/actualización
+            timestamps: true, // OWASP: Auditoría de registros[cite: 2]
         }
     }
 );
@@ -24,8 +24,7 @@ db.sequelize = sequelize;
 db.User = require('./User')(sequelize);
 db.House = require('./House')(sequelize);
 
-// Configurar Relaciones (OWASP: Control de acceso basado en integridad referencial)
-// Un usuario (vendedor) tiene muchas casas
+// Configurar Relaciones (OWASP: Integridad referencial para control de acceso)[cite: 2]
 db.User.hasMany(db.House, { foreignKey: 'sellerId', as: 'sales' });
 db.House.belongsTo(db.User, { foreignKey: 'sellerId', as: 'seller' });
 

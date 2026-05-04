@@ -3,7 +3,11 @@ const bcrypt = require('bcrypt');
 
 module.exports = (sequelize) => {
     const User = sequelize.define('User', {
-        id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
+        id: { 
+            type: DataTypes.UUID, 
+            defaultValue: DataTypes.UUIDV4, 
+            primaryKey: true 
+        },
         name: { type: DataTypes.STRING, allowNull: false },
         email: { 
             type: DataTypes.STRING, 
@@ -15,7 +19,7 @@ module.exports = (sequelize) => {
         isActive: { type: DataTypes.BOOLEAN, defaultValue: true }
     }, {
         hooks: {
-            // OWASP: Hashing antes de guardar en la DB
+            // OWASP: Hashing robusto antes de guardar en la DB[cite: 3]
             beforeCreate: async (user) => {
                 const salt = await bcrypt.genSalt(12);
                 user.password = await bcrypt.hash(user.password, salt);
