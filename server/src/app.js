@@ -1,9 +1,9 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
-require('dotenv').config();
+require('dotenv').config(); // ✅ Carga de variables de entorno al inicio[cite: 3]
 
-// Importación de modelos y rutas
+// Importación de modelos y rutas corregidas
 const { sequelize } = require('./models');
 const authRoutes = require('./routes/auth.routes');
 const userRoutes = require('./routes/user.routes');
@@ -11,69 +11,68 @@ const houseRoutes = require('./routes/house.routes');
 
 const app = express();
 
-// --- MIDDLEWARES DE SEGURIDAD (OWASP) ---
-
-// Configura cabeceras HTTP seguras
+// --- MIDDLEWARES DE SEGURIDAD (OWASP)[cite: 3] ---
 app.use(helmet()); 
-
-// Configura CORS de forma restrictiva
 app.use(cors({ 
     origin: process.env.CLIENT_URL || 'http://localhost:5173',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true
 }));
 
-// Limita el tamaño del payload para prevenir ataques DoS (Denial of Service)
 app.use(express.json({ limit: '10kb' })); 
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
-// --- DEFINICIÓN DE RUTAS ---
+// --- MIDDLEWARE DE DEBUGGING (Para rastrear el 403)[cite: 3] ---
+app.use((req, res, next) => {
+    const now = new Date().toLocaleTimeString();
+    console.log(`\n[${now}] 🛰️  Petición: ${req.method} ${req.url}`);
+    
+    if (req.headers.authorization) {
+        const partialToken = req.headers.authorization.substring(0, 20);
+        console.log(`🔑 Token en Header: ${partialToken}...`);
+    } else {
+        console.warn("⚠️ Advertencia: No se recibió encabezado de 'Authorization'");
+    }
+    
+    if (!process.env.JWT_SECRET) {
+        console.error("❌ ERROR CRÍTICO: JWT_SECRET no está definido.");
+    }
+    next();
+});
 
+// --- DEFINICIÓN DE RUTAS[cite: 3] ---
 app.use('/auth', authRoutes);
-app.use('/users', userRoutes);
+app.use('/users', userRoutes); // ✅ Ahora recibe un Router válido
 app.use('/houses', houseRoutes);
 
-// Manejo de rutas no encontradas (404)
-// OWASP: No dejar rutas abiertas que den pistas sobre la estructura del server
+// Manejo de 404[cite: 3]
 app.use((req, res) => {
     res.status(404).json({ message: 'Recurso no encontrado' });
 });
 
-// --- MANEJO GLOBAL DE ERRORES ---
-
+// --- MANEJO GLOBAL DE ERRORES[cite: 3] ---
 app.use((err, req, res, next) => {
-    // Log interno para el desarrollador
     console.error(`[Error Centralizado]: ${err.stack}`);
-
-    // OWASP: Respuesta genérica al cliente para no exponer detalles del sistema
     res.status(err.status || 500).json({ 
         message: 'Ocurrió un error interno en el servidor',
-        // Solo enviar el error en desarrollo, nunca en producción
         error: process.env.NODE_ENV === 'development' ? err.message : {}
     });
 });
 
-// --- INICIALIZACIÓN DEL SERVIDOR Y DB ---
-
+// --- INICIALIZACIÓN ---
 const PORT = process.env.PORT || 3000;
 
 const startServer = async () => {
     try {
-        // 1. Verificar conexión a la base de datos
         await sequelize.authenticate();
         console.log('✅ Conexión a PostgreSQL establecida con éxito.');
-
-        // 2. Sincronizar modelos (force: false para no borrar datos)
         await sequelize.sync({ force: false });
-        console.log('✅ Modelos de base de datos sincronizados.');
-
-        // 3. Iniciar el servidor
         app.listen(PORT, () => {
             console.log(`🚀 Servidor Sellnode corriendo en el puerto ${PORT}`);
         });
     } catch (error) {
         console.error('❌ Error crítico al iniciar el servidor:', error.message);
-        process.exit(1); // Cerramos el proceso si no hay DB
+        process.exit(1); 
     }
 };
 

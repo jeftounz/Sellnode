@@ -1,46 +1,49 @@
-const { House, User } = require('../models');
+const { House } = require('../models');
 
-// Crear nueva venta
+// 1. Crear Inmueble
 exports.createHouse = async (req, res) => {
     try {
         const { address, price, status } = req.body;
-        const sellerId = req.user.id; // Obtenido del token JWT en el middleware
-
-        const newHouse = await House.create({ address, price, status, sellerId });
+        const newHouse = await House.create({
+            address,
+            price,
+            status,
+            sellerId: req.user.id
+        });
         res.status(201).json(newHouse);
     } catch (error) {
-        res.status(500).json({ message: 'Error al crear la venta del inmueble' });
+        res.status(500).json({ message: 'Error al registrar inmueble' });
     }
 };
 
-// Listar ventas (con filtro opcional)
+// 2. Obtener todos los bienes inmuebles
 exports.getAllHouses = async (req, res) => {
     try {
-        const { status } = req.query; // Para filtrar vía ?status=vendido
-        const whereClause = status ? { status } : {};
-
-        const houses = await House.findAll({
-            where: whereClause,
-            include: [{ model: User, as: 'seller', attributes: ['name', 'email'] }]
-        });
+        const houses = await House.findAll();
         res.json(houses);
     } catch (error) {
         res.status(500).json({ message: 'Error al obtener inmuebles' });
     }
 };
 
-// Actualizar inmueble
+// 3. OBTENER UN INMUEBLE POR ID (Esta era la que faltaba)
+exports.getHouseById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const house = await House.findByPk(id);
+        if (!house) return res.status(404).json({ message: 'Inmueble no encontrado' });
+        res.json(house);
+    } catch (error) {
+        res.status(500).json({ message: 'Error al obtener el inmueble' });
+    }
+};
+
+// 4. Actualizar Inmueble
 exports.updateHouse = async (req, res) => {
     try {
         const { id } = req.params;
         const house = await House.findByPk(id);
-
         if (!house) return res.status(404).json({ message: 'Inmueble no encontrado' });
-
-        // SEGURIDAD: Verificar que el usuario sea el dueño
-        if (house.sellerId !== req.user.id) {
-            return res.status(403).json({ message: 'No tienes permiso para editar este inmueble' });
-        }
 
         await house.update(req.body);
         res.json({ message: 'Inmueble actualizado', house });
@@ -49,38 +52,16 @@ exports.updateHouse = async (req, res) => {
     }
 };
 
-// Eliminar inmueble
+// 5. Eliminar Inmueble
 exports.deleteHouse = async (req, res) => {
     try {
         const { id } = req.params;
         const house = await House.findByPk(id);
-        
         if (!house) return res.status(404).json({ message: 'Inmueble no encontrado' });
-
-        // SEGURIDAD: Verificar pertenencia
-        if (house.sellerId !== req.user.id) {
-            return res.status(403).json({ message: 'No tienes permiso para eliminar este inmueble' });
-        }
 
         await house.destroy();
-        res.json({ message: 'Registro de venta eliminado' });
+        res.json({ message: 'Inmueble eliminado' });
     } catch (error) {
         res.status(500).json({ message: 'Error al eliminar' });
-    }
-};
-
-// Obtener detalles de UNA venta (GET /houses/:id)
-exports.getHouseById = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const house = await House.findByPk(id, {
-            include: [{ model: User, as: 'seller', attributes: ['name', 'email'] }]
-        });
-
-        if (!house) return res.status(404).json({ message: 'Inmueble no encontrado' });
-
-        res.json(house);
-    } catch (error) {
-        res.status(500).json({ message: 'Error al obtener el detalle del inmueble' });
     }
 };
