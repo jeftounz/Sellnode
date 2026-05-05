@@ -1,9 +1,10 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
-require('dotenv').config(); // ✅ Carga de variables de entorno al inicio[cite: 3]
+const rateLimit = require('express-rate-limit');
+require('dotenv').config();
 
-// Importación de modelos y rutas corregidas
+// Importación de modelos y rutas
 const { sequelize } = require('./models');
 const authRoutes = require('./routes/auth.routes');
 const userRoutes = require('./routes/user.routes');
@@ -11,18 +12,30 @@ const houseRoutes = require('./routes/house.routes');
 
 const app = express();
 
-// --- MIDDLEWARES DE SEGURIDAD (OWASP)[cite: 3] ---
-app.use(helmet()); 
+// --- CONFIGURACIÓN DE SEGURIDAD (OWASP) ---
+
+// 1. Configurar el limitador de peticiones
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 100, // Máximo 100 peticiones por IP
+  message: { message: 'Demasiadas peticiones desde esta IP, intente de nuevo en 15 minutos.' },
+  standardHeaders: true, 
+  legacyHeaders: false, 
+});
+
+app.use(helmet());
+
 app.use(cors({ 
     origin: process.env.CLIENT_URL || 'http://localhost:5173',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true
 }));
 
-app.use(express.json({ limit: '10kb' })); 
+app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
-// --- MIDDLEWARE DE DEBUGGING (Para rastrear el 403)[cite: 3] ---
+// --- MIDDLEWARE DE DEBUGGING ---
+
 app.use((req, res, next) => {
     const now = new Date().toLocaleTimeString();
     console.log(`\n[${now}] 🛰️  Petición: ${req.method} ${req.url}`);
@@ -30,8 +43,6 @@ app.use((req, res, next) => {
     if (req.headers.authorization) {
         const partialToken = req.headers.authorization.substring(0, 20);
         console.log(`🔑 Token en Header: ${partialToken}...`);
-    } else {
-        console.warn("⚠️ Advertencia: No se recibió encabezado de 'Authorization'");
     }
     
     if (!process.env.JWT_SECRET) {
@@ -40,17 +51,21 @@ app.use((req, res, next) => {
     next();
 });
 
-// --- DEFINICIÓN DE RUTAS[cite: 3] ---
-app.use('/auth', authRoutes);
-app.use('/users', userRoutes); // ✅ Ahora recibe un Router válido
+// --- DEFINICIÓN DE RUTAS ---
+
+// Aplicar el limitador específicamente a las rutas de autenticación
+app.use('/auth', limiter, authRoutes); 
+
+app.use('/users', userRoutes);
 app.use('/houses', houseRoutes);
 
-// Manejo de 404[cite: 3]
+// Manejo de 404
 app.use((req, res) => {
     res.status(404).json({ message: 'Recurso no encontrado' });
 });
 
-// --- MANEJO GLOBAL DE ERRORES[cite: 3] ---
+// --- MANEJO GLOBAL DE ERRORES ---
+
 app.use((err, req, res, next) => {
     console.error(`[Error Centralizado]: ${err.stack}`);
     res.status(err.status || 500).json({ 
