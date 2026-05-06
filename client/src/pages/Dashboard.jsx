@@ -46,9 +46,9 @@ const Dashboard = () => {
       {/* Header idéntico a tu plantilla */}
       <header>
         <h1 className="text-2xl font-bold text-gray-800 tracking-tight">
-          Welcome Back, {user?.name}!
+          Bienvenido de vuelta, {user?.name}!
         </h1>
-        <p className="text-gray-600 font-medium">Here's what's happening with your account today.</p>
+        <p className="text-gray-600 font-medium">Esto es lo ultimo de nuestras estadisticas.</p>
       </header>
 
       {/* Grid de Tarjetas idéntico a tu plantilla */}
