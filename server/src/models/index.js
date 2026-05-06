@@ -1,31 +1,29 @@
-const { Sequelize } = require('sequelize');
+const express = require('express');
+const cors = require('cors');
 require('dotenv').config();
+const db = require('./models'); // Importa la configuración de db.js/index_2.js
 
-const sequelize = new Sequelize(
-    process.env.DB_NAME,
-    process.env.DB_USER,
-    process.env.DB_PASS,
-    {
-        host: process.env.DB_HOST,
-        dialect: 'postgres',
-        logging: false, 
-        define: {
-            timestamps: true, // OWASP: Auditoría de registros[cite: 2]
-        }
-    }
-);
+const app = express();
 
-const db = {};
+// Middlewares
+app.use(cors());
+app.use(express.json()); // Necesario para procesar el body de los forms[cite: 1]
 
-db.Sequelize = Sequelize;
-db.sequelize = sequelize;
+// Rutas (Ejemplo)
+// app.use('/api/auth', require('./routes/auth'));
+// app.use('/api/houses', require('./routes/houses'));
 
-// Importar Modelos
-db.User = require('./User')(sequelize);
-db.House = require('./House')(sequelize);
+const PORT = process.env.PORT || 5000;
 
-// Configurar Relaciones (OWASP: Integridad referencial para control de acceso)[cite: 2]
-db.User.hasMany(db.House, { foreignKey: 'sellerId', as: 'sales' });
-db.House.belongsTo(db.User, { foreignKey: 'sellerId', as: 'seller' });
-
-module.exports = db;
+// Sincronización de la Base de Datos y arranque del servidor
+// .sync() crea las tablas si no existen basándose en tus modelos
+db.sequelize.sync({ force: false }) // 'force: false' evita borrar datos existentes al reiniciar
+  .then(() => {
+    console.log('✅ Base de datos sincronizada con Sequelize');
+    app.listen(PORT, () => {
+      console.log(`🚀 Servidor Sellnode corriendo en el puerto ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error('❌ Error al sincronizar la base de datos:', err);
+  });

@@ -8,18 +8,31 @@ module.exports = (sequelize) => {
             defaultValue: DataTypes.UUIDV4, 
             primaryKey: true 
         },
-        name: { type: DataTypes.STRING, allowNull: false },
+        name: { 
+            type: DataTypes.STRING(250), // Límite de 250 caracteres
+            allowNull: false,
+            validate: { len: [1, 250] }
+        },
         email: { 
-            type: DataTypes.STRING, 
+            type: DataTypes.STRING(250), 
             allowNull: false, 
             unique: true,
-            validate: { isEmail: true } 
+            validate: { 
+                isEmail: true,
+                len: [1, 250]
+            } 
         },
-        password: { type: DataTypes.STRING, allowNull: false },
-        isActive: { type: DataTypes.BOOLEAN, defaultValue: true }
+        password: { 
+            type: DataTypes.STRING, 
+            allowNull: false 
+        },
+        isActive: { 
+            type: DataTypes.BOOLEAN, 
+            defaultValue: true 
+        }
     }, {
         hooks: {
-            // OWASP: Hashing robusto antes de guardar en la DB[cite: 3]
+            // Encriptación robusta antes de guardar[cite: 4]
             beforeCreate: async (user) => {
                 const salt = await bcrypt.genSalt(12);
                 user.password = await bcrypt.hash(user.password, salt);

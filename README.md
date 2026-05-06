@@ -155,3 +155,25 @@ GET /api/users: Obtiene la lista de todos los colaboradores que tienen acceso al
 PUT /api/users/:id: Actualiza la información de un colaborador, permitiendo cambiar su nombre, correo o activar/desactivar su cuenta.  
 
 DELETE /api/users/:id: Remueve a un usuario del equipo administrativo permanentemente.
+
+
+## Future Improvements & Roadmap
+
+Para fortalecer la robustez y la experiencia de usuario de Sellnode, se sugieren las siguientes implementaciones siguiendo las mejores prácticas de seguridad y escalabilidad:  
+
+### 🔐 Seguridad Avanzada (OWASP Alignment)Implementación de CAPTCHA:
+ - **Integrar Google reCAPTCHA o hCaptcha:** En el formulario de inicio de sesión para mitigar ataques automatizados de relleno de credenciales (Credential Stuffing) y ataques de fuerza bruta dirigidos. 
+
+ - **Autenticación de Dos Factores (2FA):** Añadir una capa extra de seguridad mediante códigos TOTP (Time-based One-Time Password) generados en aplicaciones como Google Authenticator.Bloqueo Progresivo: Implementar una lógica en el backend que bloquee temporalmente las cuentas tras un número determinado de intentos fallidos, complementando el actual limitador de peticiones (rate-limit).  
+
+ ### 📧 Gestión de Identidad y ComunicaciónVerificación de Correo Electrónico: 
+ - Implementar un flujo de registro donde la cuenta permanezca inactiva hasta que el usuario confirme su identidad a través de un enlace de verificación enviado por correo electrónico (usando librerías como Nodemailer o servicios como SendGrid). 
+
+ - Recuperación de Contraseña: Desarrollar un endpoint para "Olvidé mi contraseña" que genere tokens JWT de un solo uso y corta duración, permitiendo el restablecimiento seguro de credenciales mediante el correo electrónico.  
+
+ - Auditoría de Sesiones: Crear un registro detallado de las direcciones IP y dispositivos desde los cuales se accede al sistema para detectar actividades sospechosas de forma temprana.  
+
+ ### 🏗️ Escalabilidad del SistemaCarga de Imágenes: 
+ - Integrar servicios de almacenamiento en la nube (como AWS S3 o Cloudinary) para permitir que los usuarios suban fotografías reales de los inmuebles, en lugar de manejar solo datos textuales.  
+ 
+ - Notificaciones en Tiempo Real: Utilizar WebSockets (Socket.io) para notificar instantáneamente a los administradores cuando un colaborador registre una nueva venta o modifique un inmueble.
