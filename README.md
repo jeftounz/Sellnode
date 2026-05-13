@@ -1,30 +1,35 @@
-# Sellnode - Real Estate Management 
-SystemSellnode es una plataforma integral diseñada para la administración de inventario inmobiliario y la gestión de equipos de trabajo. Permite un control exhaustivo sobre las propiedades, su estatus de venta y el acceso de los colaboradores al sistema administrativo.  
+# Sellnode - Real Estate Management System
+
+ ![Logo](./pictures/logo.png) 
+
+Sellnode is a comprehensive platform designed for real estate inventory administration and team management. It allows for exhaustive control over properties, their sales status, and collaborator access to the administrative system.
 
 ## Tech Stack
 - **Frontend:** React + Vite + Tailwind CSS
 - **Backend:** Node.js + Express
 - **ORM:** Sequelize
 - **Database:** PostgreSQL
+- **Internationalization:** i18next (English / Spanish)
 
-## Security focus
-Este proyecto sigue las guías de **OWASP** para garantizar:
-- Validación de entradas robusta.
-- Gestión segura de sesiones (JWT + HttpOnly Cookies).
-- Prevención de SQL Injection.
-- Hasheo de contraseñas con Argon2/Bcrypt.
+##  Security Focus
+This project follows **OWASP** guidelines to ensure:
+- **Robust Input Validation:** Preventing malicious data entry.
+- **Secure Session Management:** Utilizing JWT (JSON Web Tokens) with secure storage.
+- **SQL Injection Prevention:** Implemented through Sequelize ORM parameterization.
+- **Password Hashing:** Using Bcrypt for high-standard credential protection.
+- **Rate Limiting:** Protection against Brute Force and DoS attacks.
 
 ## Structure
 ```bash
 real-estate-management/
 ├── server/                 # Backend Node.js
 │   ├── src/
-│   │   ├── config/         # DB (Sequelize) y variables
-│   │   ├── controllers/    # Lógica de negocio
+│   │   ├── config/         # DB (Sequelize) and variables
+│   │   ├── controllers/    # Bussiness Logic
 │   │   ├── middleware/     # Auth, ErrorHandler, Validations
 │   │   ├── models/         # User, House
-│   │   ├── routes/         # Definición de Endpoints
-│   │   └── app.js          # Punto de entrada
+│   │   ├── routes/         #  Endpoints Def
+│   │   └── app.js          # Entry points
 │   ├── .env
 │   └── package.json
 ├── client/                 # Frontend React (Vite)
@@ -42,47 +47,51 @@ real-estate-management/
 
 ## Features
 
-- Gestión de Inmuebles: Listado con búsqueda en tiempo real, filtrado por estatus y paginación de 6 elementos por página.
-- Administración de Usuarios: Control de acceso para el equipo con visualización en tabla y scroll automático para optimización de UI.
-- Seguridad y Validación: Sanitización de entradas anti-XSS, límite estricto de 250 caracteres por campo y validación de precios no negativos.  
-- Autenticación: Login seguro con visor de contraseña y registro con doble verificación de clave.  
+- Property Management: Listing with real-time search, filtering by status, and pagination of 6 items per page.
+
+- User Administration: Access control with table display and automatic scrolling for UI optimization.
+
+- Security and Validation: Anti-XSS entry sanitization, strict 250-character limit per field, and validation of non-negative prices.
+
+- Authentication: Secure login with password viewer and registration with two-factor authentication.
 
 
 ## Installation. 
 
-1. Clonar el repositorio
+1. Clone the repository.
 ```bash
 clone https://github.com/tu-usuario/sellnode.git
 cd sellnode
 ```
-2. Configurar el BackendBashcd server
+2. Configure the BackendBashcd server
 ```bash
 npm install
 ```
 
-# Configure su archivo .env con las credenciales de PostgreSQL
+# Configure your .env file with the credentials of PostgreSQL
 
 ```bash
 npm run dev
 ```
 
-3. Configurar el FrontendBash
+3. Configure the FrontendBash
 ```bash
 cd ../client
 npm install
 npm run dev
 ```
+## 🗄️ Database Configuration
 
-## Database Configuration
+The application uses a PostgreSQL database named `real_estate_magnament`.  
+Execute the following queries in the specified order:
 
-La aplicación utiliza una base de datos PostgreSQL llamada real_estate_magnament. 
-Ejecute los siguientes queries en orden:
-SchemaSQL-- 
-1. Activar extensión para UUIDs
-```bash
+### SQL Schema
+
+```sql
+-- 1. Enable extension for UUIDs
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- 2. Tabla de Usuarios
+-- 2. Users Table
 CREATE TABLE "Users" (
     "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     "name" VARCHAR(255) NOT NULL,
@@ -92,10 +101,8 @@ CREATE TABLE "Users" (
     "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
-```
 
-```bash
--- 3. Tabla de Inmuebles
+-- 3. Properties Table
 CREATE TABLE "Houses" (
     "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     "address" TEXT NOT NULL,
@@ -109,13 +116,13 @@ CREATE TABLE "Houses" (
 ```
 
 ### Seeds
-Utilice estos datos para habilitar el acceso administrativo inicial y visualizar la paginación:  
-SQL-- Acceso: admin@sellnode.com | admin123
+Use this data to enable initial administrative access and test pagination:
+Access: admin@sellnode.com | admin123
 ```bash
 INSERT INTO "Users" ("name", "email", "password", "createdAt", "updatedAt")
 VALUES ('Admin Sellnode', 'admin@sellnode.com', '$2b$10$Y56mXgJkE.TupYlUvUq7BuK7.eXGgQZ1VzG2iH0K6H3K6H3K6H3K6', NOW(), NOW());
 ```
--- Inmuebles de prueba
+-- Prove real state
 
 ```bash
 INSERT INTO "Houses" ("address", "price", "status", "sellerId", "createdAt", "updatedAt")
@@ -130,53 +137,61 @@ VALUES
 
 ```
 
-## APIS
+## APIs
 
-### 🔐 Autenticación (Auth)
+### 🔐 Authentication (Auth)
 
-POST /api/auth/login: Valida las credenciales (email y contraseña) de un colaborador para permitirle el acceso al dashboard.  
+- **POST `/api/auth/login`**: Validates the credentials (email and password) of a collaborator to grant access to the dashboard.
 
-POST /api/auth/register: Registra un nuevo usuario en la plataforma, almacenando su nombre, correo corporativo y contraseña.  
+- **POST `/api/auth/register`**: Registers a new user in the platform, storing their name, corporate email, and password.
 
-### 🏠 Gestión de Inmuebles (Houses)
+### 🏠 Property Management (Houses)
 
-GET /api/houses: Recupera el listado completo de todas las propiedades registradas en el inventario.  
+- **GET `/api/houses`**: Retrieves the complete list of all properties registered in the inventory.
 
-POST /api/houses: Crea un nuevo registro de inmueble con datos como dirección, precio y estado inicial.  
+- **POST `/api/houses`**: Creates a new property record including data such as address, price, and initial status.
 
-PUT /api/houses/:id: Permite modificar los datos existentes de una propiedad específica (como actualizar un precio o cambiar su estado a "vendido").  
+- **PUT `/api/houses/:id`**: Allows modifying existing data for a specific property (e.g., updating price or changing status to "sold").
 
-DELETE /api/houses/:id: Elimina de forma permanente el registro de un inmueble de la base de datos.  
+- **DELETE `/api/houses/:id`**: Permanently deletes a property record from the database.
 
-### 👥 Administración de Usuarios (Users)
+### 👥 User Administration (Users)
 
-GET /api/users: Obtiene la lista de todos los colaboradores que tienen acceso al sistema.  
+- **GET `/api/users`**: Obtains a list of all collaborators with access to the system.
 
-PUT /api/users/:id: Actualiza la información de un colaborador, permitiendo cambiar su nombre, correo o activar/desactivar su cuenta.  
+- **PUT `/api/users/:id`**: Updates a collaborator's information, allowing changes to their name, email, or account activation/deactivation.
 
-DELETE /api/users/:id: Remueve a un usuario del equipo administrativo permanentemente.
+- **DELETE `/api/users/:id`**: Permanently removes a user from the administrative team.
 
 
 ## Future Improvements & Roadmap
 
-Para fortalecer la robustez y la experiencia de usuario de Sellnode, se sugieren las siguientes implementaciones siguiendo las mejores prácticas de seguridad y escalabilidad:  
+To strengthen the robustness and user experience of Sellnode, the following implementations are suggested based on security and scalability best practices:
 
-### 🔐 Seguridad Avanzada (OWASP Alignment)Implementación de CAPTCHA:
- - **Integrar Google reCAPTCHA o hCaptcha:** En el formulario de inicio de sesión para mitigar ataques automatizados de relleno de credenciales (Credential Stuffing) y ataques de fuerza bruta dirigidos. 
+### 🔐 Advanced Security (OWASP Alignment)
 
- - **Autenticación de Dos Factores (2FA):** Añadir una capa extra de seguridad mediante códigos TOTP (Time-based One-Time Password) generados en aplicaciones como Google Authenticator.Bloqueo Progresivo: Implementar una lógica en el backend que bloquee temporalmente las cuentas tras un número determinado de intentos fallidos, complementando el actual limitador de peticiones (rate-limit).  
+- **CAPTCHA Implementation**: 
+  - **Integrate Google reCAPTCHA or hCaptcha**: In the login form to mitigate automated credential stuffing and targeted brute-force attacks.
 
- ### 📧 Gestión de Identidad y ComunicaciónVerificación de Correo Electrónico: 
- - Implementar un flujo de registro donde la cuenta permanezca inactiva hasta que el usuario confirme su identidad a través de un enlace de verificación enviado por correo electrónico (usando librerías como Nodemailer o servicios como SendGrid). 
+- **Two-Factor Authentication (2FA)**: Add an extra layer of security using TOTP (Time-based One-Time Password) codes generated in apps like Google Authenticator.
 
- - Recuperación de Contraseña: Desarrollar un endpoint para "Olvidé mi contraseña" que genere tokens JWT de un solo uso y corta duración, permitiendo el restablecimiento seguro de credenciales mediante el correo electrónico.  
+- **Progressive Lockout**: Implement backend logic to temporarily lock accounts after a specific number of failed attempts, complementing the current rate-limit.
 
- - Auditoría de Sesiones: Crear un registro detallado de las direcciones IP y dispositivos desde los cuales se accede al sistema para detectar actividades sospechosas de forma temprana.  
+### 📧 Identity & Communication Management
 
- ### 🏗️ Escalabilidad del SistemaCarga de Imágenes: 
- - Integrar servicios de almacenamiento en la nube (como AWS S3 o Cloudinary) para permitir que los usuarios suban fotografías reales de los inmuebles, en lugar de manejar solo datos textuales.  
- 
- - Notificaciones en Tiempo Real: Utilizar WebSockets (Socket.io) para notificar instantáneamente a los administradores cuando un colaborador registre una nueva venta o modifique un inmueble.
+- **Email Verification**: 
+  - Implement a registration flow where accounts remain inactive until the user confirms their identity via a verification link sent by email (using libraries like Nodemailer or services like SendGrid).
+
+- **Password Recovery**: Develop a "Forgot Password" endpoint that generates single-use, short-lived JWT tokens for secure credential resetting via email.
+
+- **Session Auditing**: Create a detailed log of IP addresses and devices accessing the system to detect suspicious activities early.
+
+### 🏗️ System Scalability
+
+- **Image Uploads**: 
+  - Integrate cloud storage services (such as AWS S3 or Cloudinary) to allow users to upload actual property photographs instead of only text data.
+
+- **Real-Time Notifications**: Use WebSockets (Socket.io) to instantly notify administrators when a collaborator registers a new sale or modifies a property.
 
  ## 🖼️ Project Gallery (Preview)
 
