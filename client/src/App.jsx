@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard';
 import Users from './pages/Users';
 import Houses from './pages/Houses'; // Tu nueva página de inmuebles
 import Settings from './pages/Settings';
+import './i18n';
 // import Settings from './pages/Settings'; // Para el futuro
 
 // Importación del Layout (El que tiene el Sidebar)

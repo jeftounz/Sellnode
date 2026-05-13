@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next'; // Importamos el hook de traducción
 import api from '../services/api';
 import { 
   User, 
@@ -7,17 +8,25 @@ import {
   ShieldCheck, 
   Save, 
   CheckCircle2, 
-  KeyRound 
+  KeyRound,
+  Globe // Icono para el idioma
 } from 'lucide-react';
 
 const Settings = () => {
   const { user, setUser } = useAuth();
+  const { t, i18n } = useTranslation(); // Inicializamos t y i18n
+  
   const [formData, setFormData] = useState({ 
     name: user?.name || '', 
     email: user?.email || '' 
   });
+  
   const [status, setStatus] = useState({ type: '', message: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleLanguageChange = (e) => {
+    i18n.changeLanguage(e.target.value);
+  };
 
   const handleUpdate = async (e) => {
     e.preventDefault();
@@ -25,21 +34,18 @@ const Settings = () => {
     setStatus({ type: '', message: '' });
 
     try {
-      // Petición al endpoint de actualización del usuario actual
       const { data } = await api.put(`/users/${user.id}`, formData);
-      
-      // Actualizamos el contexto global para que el Sidebar refleje el cambio
       setUser(data.user);
       
       setStatus({ 
         type: 'success', 
-        message: 'Perfil actualizado correctamente. Los cambios se verán reflejados en todo el sistema.' 
+        message: t('settings.success_msg') 
       });
     } catch (err) {
       console.error("Error al actualizar perfil:", err);
       setStatus({ 
         type: 'error', 
-        message: 'No se pudo actualizar el perfil. Verifica los datos e intenta de nuevo.' 
+        message: t('users.self_delete_error') // O una clave genérica de error
       });
     } finally {
       setIsSubmitting(false);
@@ -49,8 +55,8 @@ const Settings = () => {
   return (
     <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="mb-8">
-        <h1 className="text-3xl font-black text-slate-800 tracking-tight">Mi Perfil</h1>
-        <p className="text-slate-500 font-medium">Gestiona tu información personal y credenciales de acceso.</p>
+        <h1 className="text-3xl font-black text-slate-800 tracking-tight">{t('settings.profile_heading')}</h1>
+        <p className="text-slate-500 font-medium">{t('settings.title')}</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -64,7 +70,7 @@ const Settings = () => {
             <p className="text-sm text-slate-400 font-medium mb-4">{user?.email}</p>
             <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-50 text-indigo-600 rounded-full text-[10px] font-black uppercase tracking-widest">
               <ShieldCheck size={12} />
-              Administrador
+              {t('users.status_active')}
             </div>
           </div>
 
@@ -73,10 +79,10 @@ const Settings = () => {
               <div className="p-2 bg-white/10 rounded-xl">
                 <KeyRound size={20} className="text-indigo-200" />
               </div>
-              <h4 className="font-bold">Seguridad</h4>
+              <h4 className="font-bold">{t('users.security_warn')}</h4>
             </div>
             <p className="text-xs text-indigo-200 leading-relaxed">
-              Tu sesión está protegida mediante encriptación JWT de nivel profesional y UUID v4.
+              {t('settings.language_hint')}
             </p>
           </div>
         </div>
@@ -84,7 +90,7 @@ const Settings = () => {
         {/* Columna del Formulario */}
         <div className="lg:col-span-2">
           <form onSubmit={handleUpdate} className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 space-y-6">
-            <h3 className="text-xl font-bold text-slate-800 mb-2">Información Básica</h3>
+            <h3 className="text-xl font-bold text-slate-800 mb-2">{t('settings.account_info')}</h3>
             
             {status.message && (
               <div className={`p-4 rounded-2xl flex items-center gap-3 animate-in zoom-in duration-300 ${
@@ -96,8 +102,24 @@ const Settings = () => {
             )}
 
             <div className="space-y-4">
+              {/* Selector de Idioma */}
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase mb-2 ml-1">Nombre Completo</label>
+                <label className="block text-xs font-bold text-slate-400 uppercase mb-2 ml-1">{t('settings.select_language')}</label>
+                <div className="relative">
+                  <Globe className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                  <select 
+                    value={i18n.language}
+                    onChange={handleLanguageChange}
+                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all font-medium text-slate-700 appearance-none"
+                  >
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-400 uppercase mb-2 ml-1">{t('auth.full_name')}</label>
                 <div className="relative">
                   <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                   <input 
@@ -111,7 +133,7 @@ const Settings = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase mb-2 ml-1">Correo Electrónico</label>
+                <label className="block text-xs font-bold text-slate-400 uppercase mb-2 ml-1">{t('auth.email')}</label>
                 <div className="relative">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                   <input 
@@ -122,7 +144,7 @@ const Settings = () => {
                     onChange={(e) => setFormData({...formData, email: e.target.value})}
                   />
                 </div>
-                <p className="text-[10px] text-slate-400 mt-2 ml-1 italic">Este correo se utiliza para tu ingreso al sistema.</p>
+                <p className="text-[10px] text-slate-400 mt-2 ml-1 italic">{t('settings.email_helper')}</p>
               </div>
             </div>
 
@@ -139,7 +161,7 @@ const Settings = () => {
                 ) : (
                   <>
                     <Save size={20} />
-                    <span>Guardar Cambios</span>
+                    <span>{t('global.save')}</span>
                   </>
                 )}
               </button>

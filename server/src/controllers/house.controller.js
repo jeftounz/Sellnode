@@ -1,5 +1,6 @@
 const { House } = require('../models');
 
+// 1. Crear Inmueble
 exports.createHouse = async (req, res) => {
     try {
         const { address, price, status } = req.body;
@@ -7,7 +8,7 @@ exports.createHouse = async (req, res) => {
             address,
             price,
             status,
-            sellerId: req.user.id // ID extraído del token JWT por el middleware
+            sellerId: req.user.id // Extraído del JWT
         });
         res.status(201).json(newHouse);
     } catch (error) {
@@ -15,6 +16,7 @@ exports.createHouse = async (req, res) => {
     }
 };
 
+// 2. Obtener todos los inmuebles
 exports.getAllHouses = async (req, res) => {
     try {
         const houses = await House.findAll();
@@ -24,6 +26,19 @@ exports.getAllHouses = async (req, res) => {
     }
 };
 
+// 3. OBTENER UN INMUEBLE POR ID (Esta es la que faltaba y causaba el error)
+exports.getHouseById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const house = await House.findByPk(id);
+        if (!house) return res.status(404).json({ message: 'Inmueble no encontrado' });
+        res.json(house);
+    } catch (error) {
+        res.status(500).json({ message: 'Error al obtener el inmueble' });
+    }
+};
+
+// 4. Actualizar Inmueble
 exports.updateHouse = async (req, res) => {
     try {
         const { id } = req.params;
@@ -37,6 +52,7 @@ exports.updateHouse = async (req, res) => {
     }
 };
 
+// 5. Eliminar Inmueble
 exports.deleteHouse = async (req, res) => {
     try {
         const { id } = req.params;
