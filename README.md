@@ -1,6 +1,8 @@
 # Sellnode - Real Estate Management System
 
-<img src="./pictures/logo.png" alt="Logo" width="200">
+<p align="center">
+  <img src="./pictures/logo.png" alt="Sellnode Banner" width="800">
+</p>
 
 Sellnode is a comprehensive platform designed for real estate inventory administration and team management. It allows for exhaustive control over properties, their sales status, and collaborator access to the administrative system.
 
