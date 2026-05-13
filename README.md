@@ -177,3 +177,25 @@ Para fortalecer la robustez y la experiencia de usuario de Sellnode, se sugieren
  - Integrar servicios de almacenamiento en la nube (como AWS S3 o Cloudinary) para permitir que los usuarios suban fotografías reales de los inmuebles, en lugar de manejar solo datos textuales.  
  
  - Notificaciones en Tiempo Real: Utilizar WebSockets (Socket.io) para notificar instantáneamente a los administradores cuando un colaborador registre una nueva venta o modifique un inmueble.
+
+ ## 🖼️ Project Gallery (Preview)
+
+Below are actual screenshots of the **Sellnode** administrative interface, highlighting its modern, bilingual, and responsive design.
+
+### 🔐 Authentication & Security
+| Login Screen | Collaborator Registration |
+| :---: | :---: |
+| ![Login](./pictures/login.jpg) | ![Register](./pictures/register.jpg) |
+
+### 📊 Management & Inventory
+| Main Dashboard | Property Management |
+| :---: | :---: |
+| ![Dashboard](./pictures/dashboard.jpg) | ![Houses](./pictures/houses.jpg) |
+
+### 👥 Team & Personalization
+| Collaborator Management | Profile & Language Settings |
+| :---: | :---: |
+| ![Collaborators](./pictures/collaborators.jpg) | ![Profile](./pictures/profile.jpg) |
+
+---
+*This project was designed with a focus on User Experience (UX) and data security under modern Full-Stack development standards.*

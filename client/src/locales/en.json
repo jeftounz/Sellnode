@@ -8,7 +8,15 @@
     "actions": "Actions",
     "status": "Status",
     "loading": "Loading...",
-    "search": "Search..."
+    "search": "Search...",
+    "details_registered": "REGISTERED DETAILS"
+  },
+  "layout": {
+    "menu_dashboard": "Dashboard",
+    "menu_houses": "Properties",
+    "menu_users": "Users",
+    "menu_settings": "Settings",
+    "exit": "Logout"
   },
   "auth": {
     "login_title": "Administrative Panel",
@@ -31,7 +39,8 @@
     "login_here": "Log in",
     "pass_match": "Passwords match",
     "pass_mismatch": "Passwords do not match",
-    "pass_error": "Passwords must be identical to continue"
+    "pass_error": "Passwords must be identical to continue",
+    "forgot_account": "Forgot your account?"
   },
   "dashboard": {
     "title": "Inventory Status",

@@ -1,94 +1,133 @@
 import { useState } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, Home, LogOut, Menu, X, Settings } from 'lucide-react';
+import { LayoutDashboard, Users, Home, LogOut, Menu, X, Settings, ChevronRight, ChevronLeft } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 const Layout = () => {
-  const [isSidebarOpen, setSidebarOpen] = useState(false);
-  // Extraemos logout y user. Ahora usaremos 'user' para el avatar inferior.
+  const { t } = useTranslation();
+  // Cambiamos a true si quieres que inicie abierto
+  const [isSidebarOpen, setSidebarOpen] = useState(true); 
   const { logout, user } = useAuth(); 
   const navigate = useNavigate();
   const location = useLocation();
 
   const menuItems = [
-    { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
-    { name: 'Inmuebles', path: '/houses', icon: <Home size={20} /> },
-    { name: 'Usuarios', path: '/users', icon: <Users size={20} /> },
-    { name: 'Ajustes', path: '/settings', icon: <Settings size={20} /> },
+    { name: t('layout.menu_dashboard'), path: '/dashboard', icon: <LayoutDashboard size={20} /> },
+    { name: t('layout.menu_houses'), path: '/houses', icon: <Home size={20} /> },
+    { name: t('layout.menu_users'), path: '/users', icon: <Users size={20} /> },
+    { name: t('layout.menu_settings'), path: '/settings', icon: <Settings size={20} /> },
   ];
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-gray-100 font-sans">
-      {/* Sidebar - Fiel a tu diseño HTML */}
+    <div className="flex min-h-screen bg-gray-100 font-sans">
+      {/* Sidebar */}
       <aside 
-        className={`bg-white shadow-lg transition-all duration-300 ease-in-out fixed md:static inset-y-0 left-0 z-50 
-          ${isSidebarOpen ? 'w-64' : 'w-20 md:w-64'} 
-          ${!isSidebarOpen ? 'hidden md:block' : 'block'}`}
+        className={`bg-white shadow-xl transition-all duration-300 ease-in-out fixed md:relative inset-y-0 left-0 z-50 
+          ${isSidebarOpen ? 'w-64' : 'w-20'} 
+          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}
       >
-        <div className="p-4 flex items-center justify-between border-b">
-          <h1 className={`text-xl font-bold text-green-600 transition-opacity duration-300 
-            ${!isSidebarOpen ? 'md:opacity-100 opacity-0' : 'opacity-100'}`}>
-            Sellnode
-          </h1>
-          <button onClick={() => setSidebarOpen(!isSidebarOpen)} className="md:hidden p-2 rounded-full hover:bg-gray-200">
-            {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-        </div>
+        <nav className="flex flex-col h-full py-6">
+          {/* Logo y Botón de Toggle para Escritorio */}
+          <div className="flex items-center justify-between px-6 mb-10">
+            <div className="flex items-center">
+              <div className="h-10 w-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                <Home size={24} />
+              </div>
+              {isSidebarOpen && (
+                <span className="ml-3 font-black text-xl text-gray-800 tracking-tighter animate-in fade-in duration-300">
+                  Sellnode
+                </span>
+              )}
+            </div>
+            
+            {/* Botón para colapsar/expandir en escritorio */}
+            <button 
+              onClick={() => setSidebarOpen(!isSidebarOpen)}
+              className="hidden md:flex p-1.5 bg-slate-50 text-slate-400 hover:text-indigo-600 rounded-lg transition-colors"
+            >
+              {isSidebarOpen ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
+            </button>
+          </div>
 
-        <nav className="py-4 flex flex-col h-[calc(100vh-65px)]">
-          <ul className="space-y-2 flex-1">
-            {menuItems.map((item) => (
-              <li key={item.path}>
+          {/* Items del Menú */}
+          <div className="flex-1 px-4 space-y-2">
+            {menuItems.map((item) => {
+              const isActive = location.pathname === item.path;
+              return (
                 <Link
+                  key={item.path}
                   to={item.path}
-                  onClick={() => setSidebarOpen(false)}
-                  className={`flex items-center space-x-3 px-4 py-2 transition-colors rounded-lg mx-2
-                    ${location.pathname === item.path ? 'bg-gray-100 text-green-600 font-bold' : 'text-gray-700 hover:bg-gray-100'}`}
+                  className={`flex items-center px-4 py-3 rounded-2xl transition-all group relative
+                    ${isActive 
+                      ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' 
+                      : 'text-gray-400 hover:bg-indigo-50 hover:text-indigo-600'}`}
                 >
-                  <span className="text-gray-600">{item.icon}</span>
-                  <span className={`transition-opacity duration-300 ${!isSidebarOpen ? 'md:block hidden' : 'block'}`}>
-                    {item.name}
-                  </span>
+                  <div className={`${isActive ? 'text-white' : 'group-hover:text-indigo-600'}`}>
+                    {item.icon}
+                  </div>
+                  {isSidebarOpen && (
+                    <span className="ml-3 font-bold text-sm whitespace-nowrap animate-in fade-in slide-in-from-left-2">
+                      {item.name}
+                    </span>
+                  )}
+                  
+                  {/* Tooltip cuando está colapsado */}
+                  {!isSidebarOpen && (
+                    <div className="absolute left-16 bg-slate-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
+                      {item.name}
+                    </div>
+                  )}
                 </Link>
-              </li>
-            ))}
-          </ul>
+              );
+            })}
+          </div>
 
-          {/* SECCIÓN DE USUARIO: Aquí usamos la variable 'user' para corregir el error[cite: 3] */}
-          <div className="p-4 border-t border-gray-100">
-            <div className={`flex items-center space-x-3 mb-4 px-2 ${!isSidebarOpen ? 'md:justify-center' : ''}`}>
-              <div className="w-8 h-8 rounded-full bg-green-600 flex items-center justify-center text-white text-xs font-bold shadow-sm">
+          {/* Sección de Usuario y Salida */}
+          <div className="px-4 mt-auto pt-6 border-t border-gray-50 space-y-4">
+            <div className={`flex items-center px-4 ${!isSidebarOpen ? 'justify-center' : ''}`}>
+              <div className="h-10 w-10 rounded-xl bg-indigo-900 flex items-center justify-center text-white text-xs font-bold shrink-0">
                 {user?.name?.charAt(0).toUpperCase() || 'U'}
               </div>
-              <div className={`overflow-hidden transition-all duration-300 ${!isSidebarOpen ? 'md:hidden' : 'block'}`}>
-                <p className="text-sm font-bold text-gray-800 truncate">{user?.name}</p>
-                <p className="text-[10px] text-gray-400 truncate">{user?.email}</p>
-              </div>
+              {isSidebarOpen && (
+                <div className="ml-3 overflow-hidden animate-in fade-in duration-300">
+                  <p className="text-sm font-bold text-gray-800 truncate">{user?.name}</p>
+                  <p className="text-[10px] text-gray-400 truncate">{user?.email}</p>
+                </div>
+              )}
             </div>
 
             <button
               onClick={() => { logout(); navigate('/login'); }}
-              className="flex items-center space-x-3 px-4 py-2 w-full text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+              className="flex items-center px-4 py-3 w-full text-red-500 hover:bg-red-50 rounded-2xl transition-colors group"
             >
-              <LogOut size={20} />
-              <span className={`font-medium ${!isSidebarOpen ? 'md:block hidden' : 'block'}`}>Salir</span>
+              <LogOut size={20} className="group-hover:scale-110 transition-transform" />
+              {isSidebarOpen && (
+                <span className="ml-3 font-bold text-sm animate-in fade-in">
+                  {t('layout.exit')}
+                </span>
+              )}
             </button>
           </div>
         </nav>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 p-4 md:p-6 overflow-y-auto">
-        <div className="md:hidden flex justify-between items-center mb-4">
-          <h1 className="text-xl font-bold text-gray-800">Sellnode</h1>
-          <button onClick={() => setSidebarOpen(!isSidebarOpen)} className="p-2 rounded-full hover:bg-gray-200">
-            <Menu size={24} />
+      {/* Contenido Principal */}
+      <main className="flex-1 p-4 md:p-8 overflow-y-auto">
+        {/* Header Móvil */}
+        <div className="md:hidden flex justify-between items-center mb-6">
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white">
+              <Home size={18} />
+            </div>
+            <h1 className="text-xl font-black text-gray-800 tracking-tighter">Sellnode</h1>
+          </div>
+          <button onClick={() => setSidebarOpen(!isSidebarOpen)} className="p-2 rounded-xl bg-white shadow-sm border border-gray-100 text-gray-600">
+            {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
-
-        <div className="animate-in fade-in duration-500">
-          <Outlet />
-        </div>
+        
+        <Outlet />
       </main>
     </div>
   );

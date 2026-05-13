@@ -8,7 +8,15 @@
     "actions": "Acciones",
     "status": "Estado",
     "loading": "Cargando...",
-    "search": "Buscar..."
+    "search": "Buscar...",
+    "details_registered": "DETALLES REGISTRADOS"
+  },
+  "layout": {
+    "menu_dashboard": "Dashboard",
+    "menu_houses": "Inmuebles",
+    "menu_users": "Usuarios",
+    "menu_settings": "Ajustes",
+    "exit": "Salir"
   },
   "auth": {
     "login_title": "Panel Administrativo",
@@ -31,7 +39,8 @@
     "login_here": "Inicia sesión",
     "pass_match": "Las contraseñas coinciden",
     "pass_mismatch": "Las contraseñas no coinciden",
-    "pass_error": "Las contraseñas deben ser idénticas para continuar"
+    "pass_error": "Las contraseñas deben ser idénticas para continuar",
+    "forgot_account": "¿Olvidaste tu cuenta?"
   },
   "dashboard": {
     "title": "Estado del Inventario",

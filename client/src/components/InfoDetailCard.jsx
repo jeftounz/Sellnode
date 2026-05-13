@@ -1,6 +1,8 @@
 import { X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const InfoDetailCard = ({ isOpen, onClose, title, icon: Icon, data, actions }) => {
+  const { t } = useTranslation();
   if (!isOpen) return null;
 
   return (
@@ -23,7 +25,9 @@ const InfoDetailCard = ({ isOpen, onClose, title, icon: Icon, data, actions }) =
         <div className="p-8">
           <div className="text-center mb-6">
             <h2 className="text-2xl font-black text-slate-800">{title}</h2>
-            <p className="text-slate-400 text-sm font-medium tracking-wide">DETALLES REGISTRADOS</p>
+            <p className="text-slate-400 text-sm font-medium tracking-wide">
+              {t('global.details_registered')}
+            </p>
           </div>
 
           <div className="space-y-4">
@@ -35,9 +39,8 @@ const InfoDetailCard = ({ isOpen, onClose, title, icon: Icon, data, actions }) =
             ))}
           </div>
 
-          {/* Acciones (Opcional) */}
           {actions && (
-            <div className="mt-8 flex gap-3">
+            <div className="mt-8 pt-6 border-t border-slate-100 flex gap-3">
               {actions}
             </div>
           )}
